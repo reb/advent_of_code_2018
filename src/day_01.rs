@@ -79,10 +79,10 @@
 ///
 /// What is the first frequency your device reaches twice?
 
-const INPUT: &str = include_str!("../input/day-01.txt");
+const INPUT: &str = include_str!("../input/day_01.txt");
 
-fn main() {
-    let instructions = parse_input();
+pub fn run() {
+    let instructions = get_input();
 
     let frequency: i32 = instructions.iter().sum();
     println!("Executing the instructions once gives: {}", frequency);
@@ -100,7 +100,7 @@ fn main() {
     println!("The first repeating frequency is: {}", current_frequency);
 }
 
-fn parse_input() -> Vec<i32> {
+fn get_input() -> Vec<i32> {
     INPUT.lines()
         .map(|line| line.parse())
         .filter_map(Result::ok)
