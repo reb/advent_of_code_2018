@@ -85,7 +85,19 @@ fn main() {
     let instructions = parse_input();
 
     let frequency: i32 = instructions.iter().sum();
-    println!("Executing the instructions once gives: {:?}", frequency);
+    println!("Executing the instructions once gives: {}", frequency);
+
+    let mut past_frequencies = Vec::new();
+    let mut current_frequency = 0;
+
+    for change in instructions.iter().cycle() {
+        past_frequencies.push(current_frequency);
+        current_frequency += change;
+        if past_frequencies.contains(&current_frequency) {
+            break;
+        }
+    }
+    println!("The first repeating frequency is: {}", current_frequency);
 }
 
 fn parse_input() -> Vec<i32> {
