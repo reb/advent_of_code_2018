@@ -47,6 +47,9 @@
 /// Starting with a frequency of zero, what is the resulting frequency after all
 /// of the changes in frequency have been applied?
 
+
+const INPUT: &str = include_str!("../input/day-01.txt");
+
 fn main() {
     println!("Hello, world!");
 }
