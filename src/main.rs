@@ -51,5 +51,20 @@
 const INPUT: &str = include_str!("../input/day-01.txt");
 
 fn main() {
-    println!("Hello, world!");
+    let mut frequency = 0;
+
+    for line in INPUT.lines() {
+        let sign = &line[..1];
+        let number: i32 = (&line[1..])
+            .parse()
+            .expect("Could not parse number"); 
+
+        match sign {
+            "-" => frequency -= number,
+            "+" => frequency += number,
+            something_else => println!("Found {} as a sign!", something_else)
+        };
+    }
+
+    println!("The resulting frequency is: {}", frequency);
 }
