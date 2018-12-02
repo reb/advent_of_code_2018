@@ -112,6 +112,13 @@ fn has_value<K: Eq + Hash, V: Eq>(map: &HashMap<K, V>, value: &V) -> bool {
     map.values().any(|v| v == value)
 }
 
+fn one_letter_difference(a: &String, b: &String) -> bool {
+    let difference = a.chars().zip(b.chars())
+        .filter(|(c_a, c_b)| c_a != c_b)
+        .count();
+    difference == 1
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,5 +147,29 @@ mod tests {
         assert_eq!(has_value(&input, &1), true);
         assert_eq!(has_value(&input, &3), false);
         assert_eq!(has_value(&input, &0), false);
+    }
+
+    #[test]
+    fn test_one_letter_difference_correct() {
+        let a = String::from("abcde");
+        let b = String::from("abcdd");
+
+        assert_eq!(one_letter_difference(&a, &b), true);
+    }
+
+    #[test]
+    fn test_one_letter_difference_equal() {
+        let a = String::from("abcde");
+        let b = String::from("abcde");
+
+        assert_eq!(one_letter_difference(&a, &b), false);
+    }
+
+    #[test]
+    fn test_one_letter_difference_same_characters() {
+        let a = String::from("abcde");
+        let b = String::from("edcba");
+
+        assert_eq!(one_letter_difference(&a, &b), false);
     }
 }
