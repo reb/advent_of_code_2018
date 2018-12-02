@@ -50,10 +50,31 @@ use std::collections::HashMap;
 const INPUT: &str = include_str!("../input/day_02.txt");
 
 pub fn run() {
-    println!("Solution to day 2");
+    let ids = get_input();
+
+    let mut twos = 0;
+    let mut threes = 0;
+
+    for id in ids {
+        let counts = count_letters(&id);
+
+        if has_value(&counts, &2) {
+            twos += 1;
+        }
+        if has_value(&counts, &3) {
+            threes += 1;
+        }
+    }
+
+    let checksum = twos * threes;
+    println!("The checksum of the list of box IDs is: {}", checksum);
 }
 
-
+fn get_input() -> Vec<String> {
+    INPUT.lines()
+        .map(|s| s.to_string())
+        .collect()
+}
 
 fn count_letters(string: &String) -> HashMap<char, u8> {
     let mut counts = HashMap::new();
