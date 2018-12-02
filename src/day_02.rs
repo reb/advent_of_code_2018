@@ -46,6 +46,8 @@
 
 use std::collections::HashMap;
 
+const INPUT: &str = include_str!("../input/day_02.txt");
+
 pub fn run() {
     println!("Solution to day 2");
 }
