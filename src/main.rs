@@ -42,4 +42,5 @@ macro_rules! modules {
 
 modules![
     day_01,
+    day_02,
 ];
