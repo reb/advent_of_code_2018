@@ -62,6 +62,10 @@ fn count_letters(string: &String) -> HashMap<char, u8> {
     counts
 }
 
+fn has_value<S, T>(map: &HashMap<S, T>, value: T) -> bool {
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -76,5 +80,19 @@ mod tests {
         output.insert('d', 4);
 
         assert_eq!(count_letters(&input), output);
+    }
+
+    #[test]
+    fn test_has_value() {
+        let mut input = HashMap::new();
+        input.insert('a', 4);
+        input.insert('b', 2);
+        input.insert('c', 1);
+
+        assert_eq!(has_value(&input, 4), true);
+        assert_eq!(has_value(&input, 2), true);
+        assert_eq!(has_value(&input, 1), true);
+        assert_eq!(has_value(&input, 3), false);
+        assert_eq!(has_value(&input, 0), false);
     }
 }
