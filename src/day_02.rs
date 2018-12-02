@@ -52,6 +52,29 @@ pub fn run() {
     println!("Solution to day 2");
 }
 
-pub fn count_letters(strings: &Vec<String>) -> HashMap<char, u8> {
-    HashMap::new()
+
+
+fn count_letters(string: &String) -> HashMap<char, u8> {
+    let mut counts = HashMap::new();
+    for c in string.chars() {
+        *counts.entry(c).or_insert(0) += 1;
+    }
+    counts
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_count_letters() {
+        let input = String::from("aabcccdddd");
+        let mut output = HashMap::new();
+        output.insert('a', 2);
+        output.insert('b', 1);
+        output.insert('c', 3);
+        output.insert('d', 4);
+
+        assert_eq!(count_letters(&input), output);
+    }
 }
