@@ -92,6 +92,16 @@ pub fn run() {
 
     let checksum = twos * threes;
     println!("The checksum of the list of box IDs is: {}", checksum);
+
+    let (crate_a, crate_b): (&String, &String) = iproduct!(ids.iter(), ids.iter())
+        .find(|(id1, id2)| one_letter_difference(id1, id2))
+        .unwrap();
+
+    let equal_letters: String = crate_a.chars().zip(crate_b.chars())
+        .filter(|(a, b)| a == b)
+        .map(|(a, _)| a)
+        .collect();
+    println!("The two fabric crates have the letters '{}' equal", equal_letters);
 }
 
 fn get_input() -> Vec<String> {
