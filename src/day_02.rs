@@ -79,8 +79,8 @@ pub fn run() {
     let mut twos = 0;
     let mut threes = 0;
 
-    for id in ids {
-        let counts = count_letters(&id);
+    for id in ids.iter() {
+        let counts = count_letters(id);
 
         if has_value(&counts, &2) {
             twos += 1;
