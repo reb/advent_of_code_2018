@@ -44,6 +44,12 @@
 ///
 /// What is the checksum for your list of box IDs?
 
+use std::collections::HashMap;
+
 pub fn run() {
     println!("Solution to day 2");
+}
+
+pub fn count_letters(strings: &Vec<String>) -> HashMap<char, u8> {
+    HashMap::new()
 }
