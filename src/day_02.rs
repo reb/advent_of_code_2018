@@ -44,6 +44,7 @@
 ///
 /// What is the checksum for your list of box IDs?
 
+use std::hash::Hash;
 use std::collections::HashMap;
 
 const INPUT: &str = include_str!("../input/day_02.txt");
@@ -62,8 +63,8 @@ fn count_letters(string: &String) -> HashMap<char, u8> {
     counts
 }
 
-fn has_value<S, T>(map: &HashMap<S, T>, value: T) -> bool {
-    false
+fn has_value<K: Eq + Hash, V: Eq>(map: &HashMap<K, V>, value: &V) -> bool {
+    map.values().any(|v| v == value)
 }
 
 #[cfg(test)]
@@ -89,10 +90,10 @@ mod tests {
         input.insert('b', 2);
         input.insert('c', 1);
 
-        assert_eq!(has_value(&input, 4), true);
-        assert_eq!(has_value(&input, 2), true);
-        assert_eq!(has_value(&input, 1), true);
-        assert_eq!(has_value(&input, 3), false);
-        assert_eq!(has_value(&input, 0), false);
+        assert_eq!(has_value(&input, &4), true);
+        assert_eq!(has_value(&input, &2), true);
+        assert_eq!(has_value(&input, &1), true);
+        assert_eq!(has_value(&input, &3), false);
+        assert_eq!(has_value(&input, &0), false);
     }
 }
