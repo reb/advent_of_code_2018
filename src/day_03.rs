@@ -79,30 +79,46 @@ const INPUT: &str = include_str!("../input/day_03.txt");
 
 pub fn run() {
     let input = get_input();
+
     let mut fabric_map = HashMap::new();
-    for (start_x, start_y, width, height) in input {
+    let mut ids = Vec::new();
+
+    for (id, start_x, start_y, width, height) in input {
+        ids.push(id);
         for x in start_x..start_x+width {
             for y in start_y..start_y+height {
-                *fabric_map.entry((x, y)).or_insert(0) += 1;
+                (*fabric_map.entry((x, y)).or_insert(Vec::new())).push(id);
             }
         }
     }
+
     let overlap = fabric_map.values()
-        .filter(|&&amount_of_fabrics| amount_of_fabrics > 1)
+        .filter(|claims| claims.len() > 1)
         .count();
 
     println!("Amount of overlap in the fabric plan is: {}", overlap);
+
+    for id in ids.iter() {
+        let overlap = fabric_map.values()
+            .filter(|claims| claims.contains(&id))
+            .any(|claims| claims.len() > 1);
+        if !overlap {
+            println!("Found the non-overlapping claim, it's: {}", id);
+            break;
+        }
+    }
 }
 
-fn get_input() -> Vec<(u16, u16, u16, u16)> {
+fn get_input() -> Vec<(u16, u16, u16, u16, u16)> {
     let re = Regex::new(r"(\d+) @ (\d+),(\d+): (\d+)x(\d+)").unwrap();
 
     re.captures_iter(INPUT)
         .filter_map(|cap| {
-            let groups = (cap.get(2), cap.get(3), cap.get(4), cap.get(5));
+            let groups = (cap.get(1), cap.get(2), cap.get(3), cap.get(4), cap.get(5));
             match groups {
-                (Some(start_x), Some(start_y), Some(width), Some(height)) =>
-                    Some((start_x.as_str().parse().unwrap(),
+                (Some(id), Some(start_x), Some(start_y), Some(width), Some(height)) =>
+                    Some((id.as_str().parse().unwrap(),
+                          start_x.as_str().parse().unwrap(),
                           start_y.as_str().parse().unwrap(),
                           width.as_str().parse().unwrap(),
                           height.as_str().parse().unwrap())),
