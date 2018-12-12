@@ -5,3 +5,4 @@ authors = ["reb <reboumans@gmail.com>"]
 
 [dependencies]
 itertools = "*"
+regex = "*"

@@ -1,4 +1,5 @@
 #[macro_use] extern crate itertools;
+extern crate regex;
 
 use std::env;
 use std::collections::HashMap;

@@ -60,6 +60,49 @@
 /// If the Elves all proceed with their own plans, none of them will have enough
 /// fabric. How many square inches of fabric are within two or more claims?
 
+use std::collections::HashMap;
+use regex::Regex;
+
+const INPUT: &str = include_str!("../input/day_03.txt");
+
 pub fn run() {
-    println!("Solution to day 3");
+    let input = get_input();
+    let mut fabric_map = HashMap::new();
+    for (start_x, start_y, width, height) in input {
+        for x in start_x..start_x+width {
+            for y in start_y..start_y+height {
+                *fabric_map.entry((x, y)).or_insert(0) += 1;
+            }
+        }
+    }
+    let overlap = fabric_map.values()
+        .filter(|&&amount_of_fabrics| amount_of_fabrics > 1)
+        .count();
+
+    for x in 0..10 {
+        for y in 0..10 {
+            let entry = fabric_map.entry((x, y)).or_insert(0);
+            print!("{}", entry);
+        }
+        print!("\n");
+    }
+    println!("Amount of overlap in the fabric plan is: {}", overlap);
+}
+
+fn get_input() -> Vec<(u16, u16, u16, u16)> {
+    let re = Regex::new(r"(\d+) @ (\d+),(\d+): (\d+)x(\d+)").unwrap();
+
+    re.captures_iter(INPUT)
+        .filter_map(|cap| {
+            let groups = (cap.get(2), cap.get(3), cap.get(4), cap.get(5));
+            match groups {
+                (Some(start_x), Some(start_y), Some(width), Some(height)) =>
+                    Some((start_x.as_str().parse().unwrap(),
+                          start_y.as_str().parse().unwrap(),
+                          width.as_str().parse().unwrap(),
+                          height.as_str().parse().unwrap())),
+                _ => None,
+            }
+        })
+        .collect()
 }
