@@ -79,13 +79,6 @@ pub fn run() {
         .filter(|&&amount_of_fabrics| amount_of_fabrics > 1)
         .count();
 
-    for x in 0..10 {
-        for y in 0..10 {
-            let entry = fabric_map.entry((x, y)).or_insert(0);
-            print!("{}", entry);
-        }
-        print!("\n");
-    }
     println!("Amount of overlap in the fabric plan is: {}", overlap);
 }
 
