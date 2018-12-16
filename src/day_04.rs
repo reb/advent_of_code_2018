@@ -99,13 +99,17 @@ pub fn run() {
 
     let sleep_map = guards_sleep_map(input);
 
-    for (guard_number, asleep) in sleep_map.iter() {
-        println!("Guard: {}", guard_number);
-        for minute in asleep.iter() {
-            print!("{}", minute);
-        }
-        println!("");
-    }
+    let (sleepiest_guard, _) = sleep_map.iter()
+        .max_by_key(|(_, asleep)| asleep.iter().sum::<u16>())
+        .unwrap();
+    println!("The sleepiest guard is {}", sleepiest_guard);
+
+    let (sleepiest_minute, _) = sleep_map[sleepiest_guard].iter().enumerate()
+        .max_by_key(|(_, times_slept)| *times_slept)
+        .unwrap();
+    println!("The sleepiest minute is {}", sleepiest_minute);
+    let solution = sleepiest_guard * (sleepiest_minute as u16);
+    println!("making the solution be {}", solution);
 }
 
 fn guards_sleep_map(input: Vec<(NaiveDateTime, Event)>) -> HashMap<u16, [u16; 60]> {
