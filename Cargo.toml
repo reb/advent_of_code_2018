@@ -6,3 +6,5 @@ authors = ["reb <reboumans@gmail.com>"]
 [dependencies]
 itertools = "*"
 regex = "*"
+chrono = "*"
+lazy_static = "*"

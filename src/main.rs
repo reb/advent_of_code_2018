@@ -1,5 +1,7 @@
 #[macro_use] extern crate itertools;
 extern crate regex;
+extern crate chrono;
+#[macro_use] extern crate lazy_static;
 
 use std::env;
 use std::collections::HashMap;
