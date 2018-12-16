@@ -81,6 +81,143 @@
 /// What is the ID of the guard you chose multiplied by the minute you chose?
 /// (In the above example, the answer would be 10 * 24 = 240.)
 
+use chrono::{NaiveDateTime, Timelike};
+use regex::Regex;
+use std::collections::HashMap;
+
+const INPUT: &str = include_str!("../input/day_04.txt");
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum Event {
+    GuardStarts(u16),
+    FallsAsleep,
+    WakesUp,
+}
+
 pub fn run() {
-    println!("Solution to day 4");
+    let input = get_input();
+
+    let mut guards: HashMap<u16, [u16; 60]> = HashMap::new();
+    let mut current_guard = None;
+    let mut fell_asleep_at = None;
+
+    for (timestamp, event) in input.iter() {
+        match event {
+            Event::GuardStarts(guard_number) => {
+                current_guard = Some(*guard_number);
+            },
+            Event::FallsAsleep => {
+                if current_guard.is_some() {
+                    fell_asleep_at = Some(timestamp.minute());
+                }
+            },
+            Event::WakesUp => {
+                match (current_guard, fell_asleep_at) {
+                    (Some(guard), Some(start)) => {
+                        let stop = timestamp.minute();
+                        let mut asleep = guards.entry(guard)
+                            .or_insert([0; 60]);
+                        for i in start..stop {
+                            asleep[i as usize] += 1;
+                        }
+                    },
+                    _ => {},
+                };
+            },
+        };
+    }
+
+    for (guard_number, asleep) in guards.iter() {
+        println!("Guard: {}", guard_number);
+        for minute in asleep.iter() {
+            print!("{}", minute);
+        }
+        println!("");
+    }
+}
+
+fn get_input() -> Vec<(NaiveDateTime, Event)> {
+    let mut output: Vec<_> = INPUT.lines()
+        .filter_map(|line| convert_line(line))
+        .collect();
+    output.sort();
+    output
+}
+
+fn convert_line(line: &str) -> Option<(NaiveDateTime, Event)> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"\[(.*)\] (.*)").unwrap();
+    }
+    let captures = RE.captures(line).unwrap();
+    match (captures.get(1), captures.get(2)) {
+        (Some(timestamp), Some(message)) =>
+            Some((NaiveDateTime::parse_from_str(timestamp.as_str(), "%Y-%m-%d %H:%M").unwrap(),
+            convert_to_event(message.as_str()))),
+        _ => None,
+    }
+}
+
+fn convert_to_event(message: &str) -> Event {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"Guard #(\d+) begins shift").unwrap();
+    }
+    match message {
+        "falls asleep" => Event::FallsAsleep,
+        "wakes up" => Event::WakesUp,
+        other => {
+            let capture = RE.captures(other).unwrap();
+            match capture.get(1) {
+                Some(guard_number) => Event::GuardStarts(guard_number.as_str().parse().unwrap()),
+                _ => panic!(),
+            }
+        },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::NaiveDate;
+
+    #[test]
+    fn test_convert_line() {
+        let input = "[2000-12-31 03:54] falls asleep";
+        let output = Some((
+            NaiveDate::from_ymd(2000, 12, 31).and_hms(3, 54, 0),
+            Event::FallsAsleep
+        ));
+
+        assert_eq!(convert_line(input), output);
+    }
+
+    #[test]
+    fn test_convert_to_event_falls_asleep() {
+        let input = "falls asleep";
+        let output = Event::FallsAsleep;
+
+        assert_eq!(convert_to_event(input), output);
+    }
+
+    #[test]
+    fn test_convert_to_event_wakes_up() {
+        let input = "wakes up";
+        let output = Event::WakesUp;
+
+        assert_eq!(convert_to_event(input), output);
+    }
+
+    #[test]
+    fn test_convert_to_event_guard_starts() {
+        let input = "Guard #10 begins shift";
+        let output = Event::GuardStarts(10);
+
+        assert_eq!(convert_to_event(input), output);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_convert_to_event_panic() {
+        let input = "weirdstuff";
+        convert_to_event(input);
+    }
 }
