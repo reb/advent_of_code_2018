@@ -97,7 +97,19 @@ enum Event {
 pub fn run() {
     let input = get_input();
 
-    let mut guards: HashMap<u16, [u16; 60]> = HashMap::new();
+    let sleep_map = guards_sleep_map(input);
+
+    for (guard_number, asleep) in sleep_map.iter() {
+        println!("Guard: {}", guard_number);
+        for minute in asleep.iter() {
+            print!("{}", minute);
+        }
+        println!("");
+    }
+}
+
+fn guards_sleep_map(input: Vec<(NaiveDateTime, Event)>) -> HashMap<u16, [u16; 60]> {
+    let mut sleep_map = HashMap::new();
     let mut current_guard = None;
     let mut fell_asleep_at = None;
 
@@ -115,7 +127,7 @@ pub fn run() {
                 match (current_guard, fell_asleep_at) {
                     (Some(guard), Some(start)) => {
                         let stop = timestamp.minute();
-                        let mut asleep = guards.entry(guard)
+                        let mut asleep = sleep_map.entry(guard)
                             .or_insert([0; 60]);
                         for i in start..stop {
                             asleep[i as usize] += 1;
@@ -126,14 +138,7 @@ pub fn run() {
             },
         };
     }
-
-    for (guard_number, asleep) in guards.iter() {
-        println!("Guard: {}", guard_number);
-        for minute in asleep.iter() {
-            print!("{}", minute);
-        }
-        println!("");
-    }
+    sleep_map
 }
 
 fn get_input() -> Vec<(NaiveDateTime, Event)> {
