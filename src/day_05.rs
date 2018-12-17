@@ -50,8 +50,18 @@ fn trigger_all(polymer: &Vec<char>) -> Vec<char> {
     return Vec::new();
 }
 
-fn reacting(a: &char, b: &char) -> bool {
-    true
+fn reacting(a: char, b: char) -> bool {
+    let a_uppercase = a.to_ascii_uppercase();
+    if (a_uppercase == b && a_uppercase != a) {
+        return true;
+    }
+
+    let b_uppercase = b.to_ascii_uppercase();
+    if (b_uppercase == a && b_uppercase != b) {
+        return true;
+    }
+
+    false
 }
 
 fn get_input() -> Vec<char> {
@@ -72,36 +82,36 @@ mod tests {
 
     #[test]
     fn test_reacting_different_letters_capitals() {
-        let a = &'C';
-        let b = &'D';
+        let a = 'C';
+        let b = 'D';
         assert!(!reacting(a, b));
     }
 
     #[test]
     fn test_reacting_different_letters_lowercase() {
-        let a = &'d';
-        let b = &'e';
+        let a = 'd';
+        let b = 'e';
         assert!(!reacting(a, b));
     }
 
     #[test]
     fn test_reacting_same_letters_both_uppercase() {
-        let a = &'A';
-        let b = &'A';
+        let a = 'A';
+        let b = 'A';
         assert!(!reacting(a, b));
     }
 
     #[test]
     fn test_reacting_same_letters() {
-        let a = &'a';
-        let b = &'A';
+        let a = 'a';
+        let b = 'A';
         assert!(reacting(a, b));
     }
 
     #[test]
     fn test_reacting_same_letters_reversed() {
-        let a = &'A';
-        let b = &'a';
+        let a = 'A';
+        let b = 'a';
         assert!(reacting(a, b));
     }
 }
