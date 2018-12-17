@@ -78,7 +78,7 @@ fn reacting(a: char, b: char) -> bool {
 }
 
 fn get_input() -> Vec<char> {
-    INPUT.chars()
+    INPUT.trim().chars()
         .collect()
 }
 
