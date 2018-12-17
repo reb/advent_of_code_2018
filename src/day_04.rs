@@ -132,6 +132,21 @@ fn strategy_1(sleep_map: &HashMap<u16, [u16; 60]>) {
 
 fn strategy_2(sleep_map: &HashMap<u16, [u16; 60]>) {
     println!("Strategy 2:");
+    let (sleepiest_guard, sleepiest_minute, _) = sleep_map.iter()
+        .map(|(guard, asleep)| {
+            let (most_slept_minute, amount_slept) = asleep.iter()
+                .enumerate()
+                .max_by_key(|(_, times_slept)| *times_slept)
+                .unwrap();
+            (guard, most_slept_minute, amount_slept)
+        })
+        .max_by_key(|(_, _, times_slept)| *times_slept)
+        .unwrap();
+    println!("The sleepiest guard is {}", sleepiest_guard);
+    println!("The sleepiest minute is {}", sleepiest_minute);
+
+    let solution = sleepiest_guard * (sleepiest_minute as u16);
+    println!("making the solution be {}", solution);
 }
 
 fn guards_sleep_map(input: Vec<(NaiveDateTime, Event)>) -> HashMap<u16, [u16; 60]> {
