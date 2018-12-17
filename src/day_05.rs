@@ -55,7 +55,7 @@ fn trigger_all(input_polymer: &Vec<char>) -> Vec<char> {
     while i+1 < polymer.len() {
         if reacting(polymer[i], polymer[i+1]) {
             polymer.drain(i..i+2);
-            i -= 1;
+            i = i.saturating_sub(1);
             continue;
         }
         i += 1
@@ -90,6 +90,13 @@ mod tests {
     fn test_trigger_all() {
         let input: Vec<_> = "dabAcCaCBAcCcaDA".chars().collect();
         let output: Vec<_> = "dabCBAcaDA".chars().collect();
+        assert_eq!(trigger_all(&input), output);
+    }
+
+    #[test]
+    fn test_trigger_all_empty_result() {
+        let input: Vec<_> = "daADCc".chars().collect();
+        let output: Vec<char> = Vec::new();
         assert_eq!(trigger_all(&input), output);
     }
 
