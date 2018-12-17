@@ -43,7 +43,10 @@ const INPUT: &str = include_str!("../input/day_05.txt");
 
 pub fn run() {
     let polymer = get_input();
-    // println!("{:?}", polymer);
+    println!("Length of the starting polymer: {}", polymer.len());
+
+    let resulting_polymer = trigger_all(&polymer);
+    println!("Length of the fully triggered polymer: {}", resulting_polymer.len());
 }
 
 fn trigger_all(input_polymer: &Vec<char>) -> Vec<char> {
