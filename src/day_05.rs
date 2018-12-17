@@ -72,6 +72,21 @@ pub fn run() {
 
     let resulting_polymer = trigger_all(&polymer);
     println!("Length of the fully triggered polymer: {}", resulting_polymer.len());
+
+    let a = 'A' as u8;
+    let mut polymer_lengths = Vec::new();
+    for unit in a..a+26 {
+        let polymer_without_unit = polymer.iter()
+            .filter(|&c| c.to_ascii_uppercase() != (unit as char))
+            .map(|c| *c)
+            .collect();
+        polymer_lengths.push(trigger_all(&polymer_without_unit).len());
+    }
+
+    let shortest_length = polymer_lengths.iter()
+        .min()
+        .unwrap();
+    println!("The shortest polymer produced by removing one type is: {}", shortest_length);
 }
 
 fn trigger_all(input_polymer: &Vec<char>) -> Vec<char> {
