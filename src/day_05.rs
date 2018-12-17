@@ -46,18 +46,28 @@ pub fn run() {
     // println!("{:?}", polymer);
 }
 
-fn trigger_all(polymer: &Vec<char>) -> Vec<char> {
-    return Vec::new();
+fn trigger_all(input_polymer: &Vec<char>) -> Vec<char> {
+    let mut polymer = input_polymer.clone();
+    let mut i = 0;
+    while i+1 < polymer.len() {
+        if reacting(polymer[i], polymer[i+1]) {
+            polymer.drain(i..i+2);
+            i -= 1;
+            continue;
+        }
+        i += 1
+    }
+    polymer
 }
 
 fn reacting(a: char, b: char) -> bool {
     let a_uppercase = a.to_ascii_uppercase();
-    if (a_uppercase == b && a_uppercase != a) {
+    if a_uppercase == b && a_uppercase != a {
         return true;
     }
 
     let b_uppercase = b.to_ascii_uppercase();
-    if (b_uppercase == a && b_uppercase != b) {
+    if b_uppercase == a && b_uppercase != b {
         return true;
     }
 
