@@ -50,6 +50,9 @@ fn trigger_all(polymer: &Vec<char>) -> Vec<char> {
     return Vec::new();
 }
 
+fn reacting(a: &char, b: &char) -> bool {
+    true
+}
 
 fn get_input() -> Vec<char> {
     INPUT.chars()
@@ -61,10 +64,44 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_convert_line() {
+    fn test_trigger_all() {
         let input: Vec<_> = "dabAcCaCBAcCcaDA".chars().collect();
         let output: Vec<_> = "dabCBAcaDA".chars().collect();
-
         assert_eq!(trigger_all(&input), output);
+    }
+
+    #[test]
+    fn test_reacting_different_letters_capitals() {
+        let a = &'C';
+        let b = &'D';
+        assert!(!reacting(a, b));
+    }
+
+    #[test]
+    fn test_reacting_different_letters_lowercase() {
+        let a = &'d';
+        let b = &'e';
+        assert!(!reacting(a, b));
+    }
+
+    #[test]
+    fn test_reacting_same_letters_both_uppercase() {
+        let a = &'A';
+        let b = &'A';
+        assert!(!reacting(a, b));
+    }
+
+    #[test]
+    fn test_reacting_same_letters() {
+        let a = &'a';
+        let b = &'A';
+        assert!(reacting(a, b));
+    }
+
+    #[test]
+    fn test_reacting_same_letters_reversed() {
+        let a = &'A';
+        let b = &'a';
+        assert!(reacting(a, b));
     }
 }
