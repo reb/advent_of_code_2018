@@ -39,6 +39,32 @@
 /// in this puzzle and others, the input is large; if you copy/paste your input,
 /// make sure you get the whole thing.)
 
+const INPUT: &str = include_str!("../input/day_05.txt");
+
 pub fn run() {
-    println!("Solution to day 5");
+    let polymer = get_input();
+    // println!("{:?}", polymer);
+}
+
+fn trigger_all(polymer: &Vec<char>) -> Vec<char> {
+    return Vec::new();
+}
+
+
+fn get_input() -> Vec<char> {
+    INPUT.chars()
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_convert_line() {
+        let input: Vec<_> = "dabAcCaCBAcCcaDA".chars().collect();
+        let output: Vec<_> = "dabCBAcaDA".chars().collect();
+
+        assert_eq!(trigger_all(&input), output);
+    }
 }
