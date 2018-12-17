@@ -99,7 +99,7 @@ const INPUT: &str = include_str!("../input/day_04.txt");
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum Event {
-    GuardStarts(u16),
+    GuardStarts(u32),
     FallsAsleep,
     WakesUp,
 }
@@ -113,10 +113,10 @@ pub fn run() {
     strategy_2(&sleep_map);
 }
 
-fn strategy_1(sleep_map: &HashMap<u16, [u16; 60]>) {
+fn strategy_1(sleep_map: &HashMap<u32, [u32; 60]>) {
     println!("Strategy 1:");
     let (sleepiest_guard, _) = sleep_map.iter()
-        .max_by_key(|(_, asleep)| asleep.iter().sum::<u16>())
+        .max_by_key(|(_, asleep)| asleep.iter().sum::<u32>())
         .unwrap();
     println!("The sleepiest guard is {}", sleepiest_guard);
 
@@ -126,11 +126,11 @@ fn strategy_1(sleep_map: &HashMap<u16, [u16; 60]>) {
         .unwrap();
     println!("The sleepiest minute is {}", sleepiest_minute);
 
-    let solution = sleepiest_guard * (sleepiest_minute as u16);
+    let solution = sleepiest_guard * (sleepiest_minute as u32);
     println!("making the solution be {}", solution);
 }
 
-fn strategy_2(sleep_map: &HashMap<u16, [u16; 60]>) {
+fn strategy_2(sleep_map: &HashMap<u32, [u32; 60]>) {
     println!("Strategy 2:");
     let (sleepiest_guard, sleepiest_minute, _) = sleep_map.iter()
         .map(|(guard, asleep)| {
@@ -145,11 +145,11 @@ fn strategy_2(sleep_map: &HashMap<u16, [u16; 60]>) {
     println!("The sleepiest guard is {}", sleepiest_guard);
     println!("The sleepiest minute is {}", sleepiest_minute);
 
-    let solution = sleepiest_guard * (sleepiest_minute as u16);
+    let solution = sleepiest_guard * (sleepiest_minute as u32);
     println!("making the solution be {}", solution);
 }
 
-fn guards_sleep_map(input: Vec<(NaiveDateTime, Event)>) -> HashMap<u16, [u16; 60]> {
+fn guards_sleep_map(input: Vec<(NaiveDateTime, Event)>) -> HashMap<u32, [u32; 60]> {
     let mut sleep_map = HashMap::new();
     let mut current_guard = None;
     let mut fell_asleep_at = None;
