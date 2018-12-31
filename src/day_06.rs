@@ -70,3 +70,35 @@
 pub fn run() {
     unimplemented!();
 }
+
+fn parse_input(input: &str) -> Vec<(u16, u16)> {
+    Vec::new()
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_input() {
+        let input =
+            "1, 1\
+            1, 6\
+            8, 3\
+            3, 4\
+            5, 5\
+            8, 9";
+
+        let output: Vec<(u16, u16)> = vec![
+            (1, 1),
+            (1, 6),
+            (8, 3),
+            (3, 4),
+            (5, 5),
+            (8, 9)];
+
+        assert_eq!(parse_input(input), output);
+    }
+}
