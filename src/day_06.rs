@@ -70,11 +70,14 @@
 use regex::Regex;
 use std::collections::HashMap;
 
+type Point = (u16, u16);
+type Grid = HashMap<Point, i32>;
+
 pub fn run() {
     unimplemented!();
 }
 
-fn create_grid(points: Vec<(u16, u16)>) -> HashMap<(u16, u16), i32> {
+fn create_grid(points: Vec<Point>) -> Grid {
     // place points
     let mut grid = place_points(points);
 
@@ -82,7 +85,7 @@ fn create_grid(points: Vec<(u16, u16)>) -> HashMap<(u16, u16), i32> {
     grid
 }
 
-fn place_points(points: Vec<(u16, u16)>) -> HashMap<(u16, u16), i32> {
+fn place_points(points: Vec<Point>) -> Grid {
     let mut grid = HashMap::new();
     for (i, &point) in points.iter().enumerate() {
         grid.insert(point, i as i32);
@@ -90,13 +93,13 @@ fn place_points(points: Vec<(u16, u16)>) -> HashMap<(u16, u16), i32> {
     grid
 }
 
-fn parse_input(input: &str) -> Vec<(u16, u16)> {
+fn parse_input(input: &str) -> Vec<Point> {
     input.lines()
         .filter_map(|line| convert_line(line))
         .collect()
 }
 
-fn convert_line(line: &str) -> Option<(u16, u16)> {
+fn convert_line(line: &str) -> Option<Point> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"(\d*), (\d*)").unwrap();
     }
@@ -124,7 +127,7 @@ mod tests {
             5, 5\n\
             8, 9";
 
-        let output: Vec<(u16, u16)> = vec![
+        let output: Vec<Point> = vec![
             (1, 1),
             (1, 6),
             (8, 3),
@@ -137,7 +140,7 @@ mod tests {
 
     #[test]
     fn test_place_points() {
-        let input: Vec<(u16, u16)> = vec![
+        let input: Vec<Point> = vec![
             (0, 0),
             (2, 2)];
 
