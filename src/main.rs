@@ -51,4 +51,5 @@ modules![
     day_03,
     day_04,
     day_05,
+    day_06,
 ];
