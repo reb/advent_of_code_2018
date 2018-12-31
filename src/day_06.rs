@@ -68,9 +68,26 @@
 /// What is the size of the largest area that isn't infinite?
 
 use regex::Regex;
+use std::collections::HashMap;
 
 pub fn run() {
     unimplemented!();
+}
+
+fn create_grid(points: Vec<(u16, u16)>) -> HashMap<(u16, u16), i32> {
+    // place points
+    let mut grid = place_points(points);
+
+    // expand points
+    grid
+}
+
+fn place_points(points: Vec<(u16, u16)>) -> HashMap<(u16, u16), i32> {
+    let mut grid = HashMap::new();
+    for (i, &point) in points.iter().enumerate() {
+        grid.insert(point, i as i32);
+    }
+    grid
 }
 
 fn parse_input(input: &str) -> Vec<(u16, u16)> {
@@ -116,5 +133,18 @@ mod tests {
             (8, 9)];
 
         assert_eq!(parse_input(input), output);
+    }
+
+    #[test]
+    fn test_place_points() {
+        let input: Vec<(u16, u16)> = vec![
+            (0, 0),
+            (2, 2)];
+
+        let mut output = HashMap::new();
+        output.insert((0, 0), 0);
+        output.insert((2, 2), 1);
+
+        assert_eq!(place_points(input), output);
     }
 }
