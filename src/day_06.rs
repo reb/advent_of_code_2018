@@ -67,14 +67,30 @@
 ///
 /// What is the size of the largest area that isn't infinite?
 
+use regex::Regex;
+
 pub fn run() {
     unimplemented!();
 }
 
 fn parse_input(input: &str) -> Vec<(u16, u16)> {
-    Vec::new()
+    input.lines()
+        .filter_map(|line| convert_line(line))
+        .collect()
 }
 
+fn convert_line(line: &str) -> Option<(u16, u16)> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"(\d*), (\d*)").unwrap();
+    }
+    let captures = RE.captures(line).unwrap();
+    match (captures.get(1), captures.get(2)) {
+        (Some(x), Some(y)) =>
+            Some((x.as_str().parse().unwrap(),
+                  y.as_str().parse().unwrap())),
+        _ => None,
+    }
+}
 
 
 #[cfg(test)]
@@ -84,11 +100,11 @@ mod tests {
     #[test]
     fn test_parse_input() {
         let input =
-            "1, 1\
-            1, 6\
-            8, 3\
-            3, 4\
-            5, 5\
+            "1, 1\n\
+            1, 6\n\
+            8, 3\n\
+            3, 4\n\
+            5, 5\n\
             8, 9";
 
         let output: Vec<(u16, u16)> = vec![
