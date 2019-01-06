@@ -68,7 +68,7 @@
 /// What is the size of the largest area that isn't infinite?
 
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 type Point = (i32, i32);
 type Grid = HashMap<Point, i32>;
@@ -85,7 +85,28 @@ struct Bounds {
 
 
 pub fn run() {
-    unimplemented!();
+    let points = parse_input(include_str!("../input/day_06.txt"));
+
+    let bounds = create_bounds(&points);
+    let grid = create_grid(points, &bounds);
+
+    let mut areas = HashMap::new();
+    let mut infinite_areas = HashSet::new();
+    infinite_areas.insert(-1);
+    for (point, area_number) in grid.iter() {
+        if on_bounds(point,&bounds) {
+            infinite_areas.insert(*area_number);
+            areas.remove(area_number);
+        }
+        if !infinite_areas.contains(area_number) {
+            *areas.entry(area_number).or_insert(0) += 1;
+        }
+    }
+
+    let biggest_area_size = areas.values()
+        .max()
+        .unwrap();
+    println!("The biggest non-infinite area size is: {}", biggest_area_size);
 }
 
 fn create_grid(points: Vec<Point>, bounds: &Bounds) -> Grid {
