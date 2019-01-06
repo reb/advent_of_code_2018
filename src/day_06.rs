@@ -107,14 +107,26 @@ fn expand_grid(grid: Grid, bounds: &Bounds) -> Grid {
 
     for ((x, y), area_number) in grid {
         new_grid.insert((x, y), area_number);
-        new_grid.insert((x+1, y), area_number);
-        new_grid.insert((x-1, y), area_number);
-        new_grid.insert((x, y+1), area_number);
-        new_grid.insert((x, y-1), area_number);
+        if area_number != -1 {
+            add_number(&mut new_grid, (x+1, y), area_number);
+            add_number(&mut new_grid, (x-1, y), area_number);
+            add_number(&mut new_grid, (x, y+1), area_number);
+            add_number(&mut new_grid, (x, y-1), area_number);
+        }
     }
 
     new_grid.retain(|point, _| outside_of_bounds(&point, bounds));
     new_grid
+}
+
+fn add_number(grid: &mut Grid, point: Point, area_number: i32) {
+    grid.entry(point)
+        .and_modify(|number| {
+            if *number != area_number {
+                *number = -1;
+            }
+        })
+        .or_insert(area_number);
 }
 
 fn outside_of_bounds(&(x, y): &Point, bounds: &Bounds) -> bool {
@@ -204,6 +216,24 @@ mod tests {
     }
 
     #[test]
+    fn test_expand_grid_boundaries() {
+        let x_range = Range {min:0, max:1};
+        let y_range = Range {min:0, max:1};
+        let bounds = Bounds {x:x_range, y:y_range};
+        let mut input = HashMap::new();
+        input.insert((0, 0), 0);
+        input.insert((1, 1), 1);
+
+        let mut output = HashMap::new();
+        output.insert((0, 0), 0);
+        output.insert((1, 0), -1);
+        output.insert((0, 1), -1);
+        output.insert((1, 1), 1);
+
+        assert_eq!(expand_grid(input, &bounds), output);
+    }
+
+    #[test]
     fn test_outside_of_bounds() {
         let x_range = Range {min:4, max:10};
         let y_range = Range {min:1, max:3};
@@ -218,5 +248,40 @@ mod tests {
         assert!(!outside_of_bounds(&(5, 8), &bounds));
         assert!(!outside_of_bounds(&(2, 2), &bounds));
         assert!(!outside_of_bounds(&(11, 3), &bounds));
+    }
+
+    #[test]
+    fn test_add_number() {
+        let mut input: Grid = HashMap::new();
+
+        let mut output = HashMap::new();
+        output.insert((0, 0), 0);
+
+        add_number(&mut input, (0, 0), 0);
+        assert_eq!(input, output);
+    }
+
+    #[test]
+    fn test_add_number_boundary() {
+        let mut input = HashMap::new();
+        input.insert((1, 0), 0);
+
+        let mut output = HashMap::new();
+        output.insert((1, 0), -1);
+
+        add_number(&mut input, (1, 0), 1);
+        assert_eq!(input, output);
+    }
+
+    #[test]
+    fn test_add_number_same_area() {
+        let mut input = HashMap::new();
+        input.insert((1, 0), 0);
+
+        let mut output = HashMap::new();
+        output.insert((1, 0), 0);
+
+        add_number(&mut input, (1, 0), 0);
+        assert_eq!(input, output);
     }
 }
