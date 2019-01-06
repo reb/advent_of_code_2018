@@ -70,8 +70,17 @@
 use regex::Regex;
 use std::collections::HashMap;
 
-type Point = (u16, u16);
+type Point = (i32, i32);
 type Grid = HashMap<Point, i32>;
+struct Range {
+    min: i32,
+    max: i32,
+}
+struct Bounds {
+    x: Range,
+    y: Range,
+}
+
 
 pub fn run() {
     unimplemented!();
@@ -87,10 +96,33 @@ fn create_grid(points: Vec<Point>) -> Grid {
 
 fn place_points(points: Vec<Point>) -> Grid {
     let mut grid = HashMap::new();
-    for (i, &point) in points.iter().enumerate() {
-        grid.insert(point, i as i32);
+    for (area_number, &point) in points.iter().enumerate() {
+        grid.insert(point, area_number as i32);
     }
     grid
+}
+
+fn expand_grid(grid: Grid, bounds: &Bounds) -> Grid {
+    let mut new_grid: Grid = HashMap::new();
+
+    for ((x, y), area_number) in grid {
+        new_grid.insert((x, y), area_number);
+        new_grid.insert((x+1, y), area_number);
+        new_grid.insert((x-1, y), area_number);
+        new_grid.insert((x, y+1), area_number);
+        new_grid.insert((x, y-1), area_number);
+    }
+
+    new_grid.retain(|point, _| outside_of_bounds(&point, bounds));
+    new_grid
+}
+
+fn outside_of_bounds(&(x, y): &Point, bounds: &Bounds) -> bool {
+    if bounds.x.min <= x && bounds.x.max >= x &&
+        bounds.y.min <= y && bounds.y.max >= y {
+        return true
+    }
+    false
 }
 
 fn parse_input(input: &str) -> Vec<Point> {
@@ -149,5 +181,42 @@ mod tests {
         output.insert((2, 2), 1);
 
         assert_eq!(place_points(input), output);
+    }
+
+    #[test]
+    fn test_expand_grid() {
+        let x_range = Range {min:0, max:2};
+        let y_range = Range {min:0, max:2};
+        let bounds = Bounds {x:x_range, y:y_range};
+        let mut input = HashMap::new();
+        input.insert((0, 0), 0);
+        input.insert((2, 2), 1);
+
+        let mut output = HashMap::new();
+        output.insert((0, 0), 0);
+        output.insert((1, 0), 0);
+        output.insert((0, 1), 0);
+        output.insert((2, 2), 1);
+        output.insert((1, 2), 1);
+        output.insert((2, 1), 1);
+
+        assert_eq!(expand_grid(input, &bounds), output);
+    }
+
+    #[test]
+    fn test_outside_of_bounds() {
+        let x_range = Range {min:4, max:10};
+        let y_range = Range {min:1, max:3};
+        let bounds = Bounds {x:x_range, y:y_range};
+
+        assert!(outside_of_bounds(&(5, 1), &bounds));
+        assert!(outside_of_bounds(&(10, 2), &bounds));
+        assert!(outside_of_bounds(&(8, 3), &bounds));
+
+        assert!(!outside_of_bounds(&(3, 5), &bounds));
+        assert!(!outside_of_bounds(&(7, 0), &bounds));
+        assert!(!outside_of_bounds(&(5, 8), &bounds));
+        assert!(!outside_of_bounds(&(2, 2), &bounds));
+        assert!(!outside_of_bounds(&(11, 3), &bounds));
     }
 }
