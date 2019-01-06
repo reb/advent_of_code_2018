@@ -140,10 +140,11 @@ fn expand_grid(grid: &Grid, bounds: &Bounds) -> Grid {
     for (&(x, y), &area_number) in grid {
         new_grid.insert((x, y), area_number);
         if area_number != -1 {
-            add_number(&mut new_grid, (x+1, y), area_number);
-            add_number(&mut new_grid, (x-1, y), area_number);
-            add_number(&mut new_grid, (x, y+1), area_number);
-            add_number(&mut new_grid, (x, y-1), area_number);
+            for expanding_point in [(x+1, y), (x-1, y), (x, y+1), (x, y-1)].iter() {
+                if !grid.contains_key(expanding_point) {
+                    add_number(&mut new_grid, *expanding_point, area_number);
+                }
+            }
         }
     }
 
@@ -310,6 +311,22 @@ mod tests {
         output.insert((1, 0), -1);
         output.insert((0, 1), -1);
         output.insert((1, 1), 1);
+
+        assert_eq!(expand_grid(&input, &bounds), output);
+    }
+
+    #[test]
+    fn test_expand_grid_no_boundary_between() {
+        let x_range = Range {min:1, max:2};
+        let y_range = Range {min:0, max:0};
+        let bounds = Bounds {x:x_range, y:y_range};
+        let mut input = HashMap::new();
+        input.insert((1, 0), 0);
+        input.insert((2, 0), 1);
+
+        let mut output = HashMap::new();
+        output.insert((1, 0), 0);
+        output.insert((2, 0), 1);
 
         assert_eq!(expand_grid(&input, &bounds), output);
     }
