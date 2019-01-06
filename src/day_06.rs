@@ -72,10 +72,12 @@ use std::collections::HashMap;
 
 type Point = (i32, i32);
 type Grid = HashMap<Point, i32>;
+#[derive(Debug, PartialEq, Eq)]
 struct Range {
     min: i32,
     max: i32,
 }
+#[derive(Debug, PartialEq, Eq)]
 struct Bounds {
     x: Range,
     y: Range,
@@ -86,12 +88,42 @@ pub fn run() {
     unimplemented!();
 }
 
-fn create_grid(points: Vec<Point>) -> Grid {
+fn create_grid(points: Vec<Point>, bounds: &Bounds) -> Grid {
     // place points
     let mut grid = place_points(points);
 
     // expand points
-    grid
+    loop {
+        let new_grid = expand_grid(&grid, bounds);
+        if new_grid == grid {
+            return new_grid;
+        }
+        grid = new_grid
+    }
+}
+
+fn create_bounds(points: &Vec<Point>) -> Bounds {
+    let x_min = points.iter()
+        .map(|(x, _)| x)
+        .min()
+        .unwrap();
+    let x_max = points.iter()
+        .map(|(x, _)| x)
+        .max()
+        .unwrap();
+    let x_range = Range {min:*x_min, max:*x_max};
+
+    let y_min = points.iter()
+        .map(|(_, y)| y)
+        .min()
+        .unwrap();
+    let y_max = points.iter()
+        .map(|(_, y)| y)
+        .max()
+        .unwrap();
+    let y_range = Range {min:*y_min, max:*y_max};
+
+    Bounds {x:x_range, y:y_range}
 }
 
 fn place_points(points: Vec<Point>) -> Grid {
@@ -102,10 +134,10 @@ fn place_points(points: Vec<Point>) -> Grid {
     grid
 }
 
-fn expand_grid(grid: Grid, bounds: &Bounds) -> Grid {
+fn expand_grid(grid: &Grid, bounds: &Bounds) -> Grid {
     let mut new_grid: Grid = HashMap::new();
 
-    for ((x, y), area_number) in grid {
+    for (&(x, y), &area_number) in grid {
         new_grid.insert((x, y), area_number);
         if area_number != -1 {
             add_number(&mut new_grid, (x+1, y), area_number);
@@ -132,6 +164,18 @@ fn add_number(grid: &mut Grid, point: Point, area_number: i32) {
 fn outside_of_bounds(&(x, y): &Point, bounds: &Bounds) -> bool {
     if bounds.x.min <= x && bounds.x.max >= x &&
         bounds.y.min <= y && bounds.y.max >= y {
+        return true
+    }
+    false
+}
+
+fn on_bounds(&(x, y): &Point, bounds: &Bounds) -> bool {
+    if (bounds.x.min == x || bounds.x.max == x) &&
+        (bounds.y.min <= y && bounds.y.max >= y) {
+        return true
+    }
+    if (bounds.y.min == y || bounds.y.max == y) &&
+        (bounds.x.min <= x && bounds.x.max >= x) {
         return true
     }
     false
@@ -196,6 +240,43 @@ mod tests {
     }
 
     #[test]
+    fn test_create_bounds() {
+        let input: Vec<Point> = vec![
+            (0, 0),
+            (1, 1),
+            (3, 2)];
+
+        let x_range = Range {min:0, max:3};
+        let y_range = Range {min:0, max:2};
+        let output = Bounds {x:x_range, y:y_range};
+
+        assert_eq!(create_bounds(&input), output);
+    }
+
+    #[test]
+    fn test_create_grid() {
+        let input: Vec<Point> = vec![
+            (0, 0),
+            (2, 2)];
+        let x_range = Range {min:0, max:2};
+        let y_range = Range {min:0, max:2};
+        let bounds = Bounds {x:x_range, y:y_range};
+
+        let mut output = HashMap::new();
+        output.insert((0, 0), 0);
+        output.insert((1, 0), 0);
+        output.insert((2, 0), -1);
+        output.insert((0, 1), 0);
+        output.insert((1, 1), -1);
+        output.insert((2, 1), 1);
+        output.insert((0, 2), -1);
+        output.insert((1, 2), 1);
+        output.insert((2, 2), 1);
+
+        assert_eq!(create_grid(input, &bounds), output);
+    }
+
+    #[test]
     fn test_expand_grid() {
         let x_range = Range {min:0, max:2};
         let y_range = Range {min:0, max:2};
@@ -212,7 +293,7 @@ mod tests {
         output.insert((1, 2), 1);
         output.insert((2, 1), 1);
 
-        assert_eq!(expand_grid(input, &bounds), output);
+        assert_eq!(expand_grid(&input, &bounds), output);
     }
 
     #[test]
@@ -230,7 +311,7 @@ mod tests {
         output.insert((0, 1), -1);
         output.insert((1, 1), 1);
 
-        assert_eq!(expand_grid(input, &bounds), output);
+        assert_eq!(expand_grid(&input, &bounds), output);
     }
 
     #[test]
@@ -248,6 +329,22 @@ mod tests {
         assert!(!outside_of_bounds(&(5, 8), &bounds));
         assert!(!outside_of_bounds(&(2, 2), &bounds));
         assert!(!outside_of_bounds(&(11, 3), &bounds));
+    }
+
+    #[test]
+    fn test_on_bounds() {
+        let x_range = Range {min:0, max:3};
+        let y_range = Range {min:2, max:6};
+        let bounds = Bounds {x:x_range, y:y_range};
+
+        assert!(on_bounds(&(0, 4), &bounds));
+        assert!(on_bounds(&(3, 2), &bounds));
+        assert!(on_bounds(&(2, 6), &bounds));
+
+        assert!(!on_bounds(&(2, 7), &bounds));
+        assert!(!on_bounds(&(2, 5), &bounds));
+        assert!(!on_bounds(&(1, 1), &bounds));
+        assert!(!on_bounds(&(11, 8), &bounds));
     }
 
     #[test]
