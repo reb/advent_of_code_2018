@@ -230,6 +230,10 @@ fn add_number(grid: &mut Grid, point: Point, area_number: i32) {
         .or_insert(area_number);
 }
 
+fn distance((x1, y1): &Point, (x2, y2): &Point) -> i32 {
+    (x1 - x2).abs() + (y1 - y2).abs()
+}
+
 fn outside_of_bounds(&(x, y): &Point, bounds: &Bounds) -> bool {
     if bounds.x.min <= x && bounds.x.max >= x &&
         bounds.y.min <= y && bounds.y.max >= y {
@@ -465,5 +469,13 @@ mod tests {
 
         add_number(&mut input, (1, 0), 0);
         assert_eq!(input, output);
+    }
+
+    #[test]
+    fn test_distance() {
+        assert_eq!(distance(&(0, 0), &(1, 1)), 2);
+        assert_eq!(distance(&(1, 1), &(0, 0)), 2);
+        assert_eq!(distance(&(10, 0), &(0, 10)), 20);
+        assert_eq!(distance(&(5, 5), &(7, 3)), 4);
     }
 }
