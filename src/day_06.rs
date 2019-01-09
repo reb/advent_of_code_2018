@@ -155,6 +155,10 @@ pub fn run() {
         .max()
         .unwrap();
     println!("The biggest non-infinite area size is: {}", biggest_area_size);
+
+    let concentrated_area = count_points_below(&points, &bounds, 10_000);
+    println!("The size of the area that have a total distance less than \
+             10.000 is: {}", concentrated_area);
 }
 
 fn create_grid(points: &Vec<Point>, bounds: &Bounds) -> Grid {
@@ -169,6 +173,19 @@ fn create_grid(points: &Vec<Point>, bounds: &Bounds) -> Grid {
         }
     }
     grid
+}
+
+fn count_points_below(points: &Vec<Point>, bounds: &Bounds, treshold: i32) -> i32 {
+    let mut count = 0;
+    for x in bounds.x.min..=bounds.x.max {
+        for y in bounds.y.min..=bounds.y.max {
+            let point = (x, y);
+            if total_distance(&point, points) < treshold {
+                count += 1;
+            };
+        }
+    }
+    count
 }
 
 fn create_bounds(points: &Vec<Point>) -> Bounds {
@@ -199,6 +216,12 @@ fn distance((x1, y1): &Point, (x2, y2): &Point) -> i32 {
     (x1 - x2).abs() + (y1 - y2).abs()
 }
 
+fn total_distance(reference_point: &Point, points: &Vec<Point>) -> i32 {
+    points.iter()
+        .map(|point| distance(reference_point, point))
+        .sum()
+}
+
 fn closest_point(reference_point: &Point, points: &Vec<Point>) -> Option<usize> {
     let (index, _) = points.iter()
         .map(|point| distance(reference_point, point))
@@ -212,14 +235,6 @@ fn closest_point(reference_point: &Point, points: &Vec<Point>) -> Option<usize> 
         });
 
     index
-}
-
-fn outside_of_bounds(&(x, y): &Point, bounds: &Bounds) -> bool {
-    if bounds.x.min <= x && bounds.x.max >= x &&
-        bounds.y.min <= y && bounds.y.max >= y {
-        return true
-    }
-    false
 }
 
 fn on_bounds(&(x, y): &Point, bounds: &Bounds) -> bool {
@@ -314,23 +329,6 @@ mod tests {
     }
 
     #[test]
-    fn test_outside_of_bounds() {
-        let x_range = Range {min:4, max:10};
-        let y_range = Range {min:1, max:3};
-        let bounds = Bounds {x:x_range, y:y_range};
-
-        assert!(outside_of_bounds(&(5, 1), &bounds));
-        assert!(outside_of_bounds(&(10, 2), &bounds));
-        assert!(outside_of_bounds(&(8, 3), &bounds));
-
-        assert!(!outside_of_bounds(&(3, 5), &bounds));
-        assert!(!outside_of_bounds(&(7, 0), &bounds));
-        assert!(!outside_of_bounds(&(5, 8), &bounds));
-        assert!(!outside_of_bounds(&(2, 2), &bounds));
-        assert!(!outside_of_bounds(&(11, 3), &bounds));
-    }
-
-    #[test]
     fn test_on_bounds() {
         let x_range = Range {min:0, max:3};
         let y_range = Range {min:2, max:6};
@@ -372,4 +370,16 @@ mod tests {
             (0, 3)];
         assert_eq!(closest_point(&(0, 2), &points), None);
     }
+
+    #[test]
+    fn test_total_distance() {
+        let points: Vec<Point> = vec![
+            (0, 0),
+            (2, 3),
+            (10, 5)];
+        assert_eq!(total_distance(&(1, 1), &points), 18);
+        assert_eq!(total_distance(&(3, 3), &points), 16);
+        assert_eq!(total_distance(&(0, 5), &points), 19);
+    }
+
 }
