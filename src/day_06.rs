@@ -116,6 +116,8 @@
 
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
+use std::cmp::Ordering;
+use std::i32;
 
 type Point = (i32, i32);
 type Grid = HashMap<Point, i32>;
@@ -232,6 +234,21 @@ fn add_number(grid: &mut Grid, point: Point, area_number: i32) {
 
 fn distance((x1, y1): &Point, (x2, y2): &Point) -> i32 {
     (x1 - x2).abs() + (y1 - y2).abs()
+}
+
+fn closest_point(reference_point: &Point, points: &Vec<Point>) -> Option<usize> {
+    let (index, _) = points.iter()
+        .map(|point| distance(reference_point, point))
+        .enumerate()
+        .fold((None, i32::MAX), |(some_index, minimum), (new_index, new_value)| {
+            match minimum.cmp(&new_value) {
+                Ordering::Greater => (Some(new_index), new_value),
+                Ordering::Less => (some_index, minimum),
+                Ordering::Equal => (None, minimum),
+            }
+        });
+
+    index
 }
 
 fn outside_of_bounds(&(x, y): &Point, bounds: &Bounds) -> bool {
@@ -477,5 +494,24 @@ mod tests {
         assert_eq!(distance(&(1, 1), &(0, 0)), 2);
         assert_eq!(distance(&(10, 0), &(0, 10)), 20);
         assert_eq!(distance(&(5, 5), &(7, 3)), 4);
+    }
+
+    #[test]
+    fn test_closest_point() {
+        let points: Vec<Point> = vec![
+            (1, 1),
+            (1, 6),
+            (8, 9)];
+        assert_eq!(closest_point(&(2, 2), &points), Some(0));
+        assert_eq!(closest_point(&(1, 5), &points), Some(1));
+        assert_eq!(closest_point(&(10, 10), &points), Some(2));
+    }
+
+    #[test]
+    fn test_closest_point_equal_distance() {
+        let points: Vec<Point> = vec![
+            (0, 1),
+            (0, 3)];
+        assert_eq!(closest_point(&(0, 2), &points), None);
     }
 }
