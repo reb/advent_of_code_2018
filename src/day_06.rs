@@ -120,7 +120,7 @@ use std::cmp::Ordering;
 use std::i32;
 
 type Point = (i32, i32);
-type Grid = HashMap<Point, i32>;
+type Grid = HashMap<Point, usize>;
 #[derive(Debug, PartialEq, Eq)]
 struct Range {
     min: i32,
@@ -137,11 +137,10 @@ pub fn run() {
     let points = parse_input(include_str!("../input/day_06.txt"));
 
     let bounds = create_bounds(&points);
-    let grid = create_grid(points, &bounds);
+    let grid = create_grid(&points, &bounds);
 
     let mut areas = HashMap::new();
     let mut infinite_areas = HashSet::new();
-    infinite_areas.insert(-1);
     for (point, area_number) in grid.iter() {
         if on_bounds(point,&bounds) {
             infinite_areas.insert(*area_number);
@@ -158,18 +157,18 @@ pub fn run() {
     println!("The biggest non-infinite area size is: {}", biggest_area_size);
 }
 
-fn create_grid(points: Vec<Point>, bounds: &Bounds) -> Grid {
-    // place points
-    let mut grid = place_points(points);
-
-    // expand points
-    loop {
-        let new_grid = expand_grid(&grid, bounds);
-        if new_grid == grid {
-            return new_grid;
+fn create_grid(points: &Vec<Point>, bounds: &Bounds) -> Grid {
+    let mut grid = HashMap::new();
+    for x in bounds.x.min..=bounds.x.max {
+        for y in bounds.y.min..=bounds.y.max {
+            let point = (x, y);
+            match closest_point(&point, points) {
+                Some(area_number) => grid.insert(point, area_number),
+                None => None,
+            };
         }
-        grid = new_grid
     }
+    grid
 }
 
 fn create_bounds(points: &Vec<Point>) -> Bounds {
@@ -194,42 +193,6 @@ fn create_bounds(points: &Vec<Point>) -> Bounds {
     let y_range = Range {min:*y_min, max:*y_max};
 
     Bounds {x:x_range, y:y_range}
-}
-
-fn place_points(points: Vec<Point>) -> Grid {
-    let mut grid = HashMap::new();
-    for (area_number, &point) in points.iter().enumerate() {
-        grid.insert(point, area_number as i32);
-    }
-    grid
-}
-
-fn expand_grid(grid: &Grid, bounds: &Bounds) -> Grid {
-    let mut new_grid: Grid = HashMap::new();
-
-    for (&(x, y), &area_number) in grid {
-        new_grid.insert((x, y), area_number);
-        if area_number != -1 {
-            for expanding_point in [(x+1, y), (x-1, y), (x, y+1), (x, y-1)].iter() {
-                if !grid.contains_key(expanding_point) {
-                    add_number(&mut new_grid, *expanding_point, area_number);
-                }
-            }
-        }
-    }
-
-    new_grid.retain(|point, _| outside_of_bounds(&point, bounds));
-    new_grid
-}
-
-fn add_number(grid: &mut Grid, point: Point, area_number: i32) {
-    grid.entry(point)
-        .and_modify(|number| {
-            if *number != area_number {
-                *number = -1;
-            }
-        })
-        .or_insert(area_number);
 }
 
 fn distance((x1, y1): &Point, (x2, y2): &Point) -> i32 {
@@ -317,19 +280,6 @@ mod tests {
     }
 
     #[test]
-    fn test_place_points() {
-        let input: Vec<Point> = vec![
-            (0, 0),
-            (2, 2)];
-
-        let mut output = HashMap::new();
-        output.insert((0, 0), 0);
-        output.insert((2, 2), 1);
-
-        assert_eq!(place_points(input), output);
-    }
-
-    #[test]
     fn test_create_bounds() {
         let input: Vec<Point> = vec![
             (0, 0),
@@ -355,69 +305,12 @@ mod tests {
         let mut output = HashMap::new();
         output.insert((0, 0), 0);
         output.insert((1, 0), 0);
-        output.insert((2, 0), -1);
         output.insert((0, 1), 0);
-        output.insert((1, 1), -1);
         output.insert((2, 1), 1);
-        output.insert((0, 2), -1);
         output.insert((1, 2), 1);
         output.insert((2, 2), 1);
 
-        assert_eq!(create_grid(input, &bounds), output);
-    }
-
-    #[test]
-    fn test_expand_grid() {
-        let x_range = Range {min:0, max:2};
-        let y_range = Range {min:0, max:2};
-        let bounds = Bounds {x:x_range, y:y_range};
-        let mut input = HashMap::new();
-        input.insert((0, 0), 0);
-        input.insert((2, 2), 1);
-
-        let mut output = HashMap::new();
-        output.insert((0, 0), 0);
-        output.insert((1, 0), 0);
-        output.insert((0, 1), 0);
-        output.insert((2, 2), 1);
-        output.insert((1, 2), 1);
-        output.insert((2, 1), 1);
-
-        assert_eq!(expand_grid(&input, &bounds), output);
-    }
-
-    #[test]
-    fn test_expand_grid_boundaries() {
-        let x_range = Range {min:0, max:1};
-        let y_range = Range {min:0, max:1};
-        let bounds = Bounds {x:x_range, y:y_range};
-        let mut input = HashMap::new();
-        input.insert((0, 0), 0);
-        input.insert((1, 1), 1);
-
-        let mut output = HashMap::new();
-        output.insert((0, 0), 0);
-        output.insert((1, 0), -1);
-        output.insert((0, 1), -1);
-        output.insert((1, 1), 1);
-
-        assert_eq!(expand_grid(&input, &bounds), output);
-    }
-
-    #[test]
-    fn test_expand_grid_no_boundary_between() {
-        let x_range = Range {min:1, max:2};
-        let y_range = Range {min:0, max:0};
-        let bounds = Bounds {x:x_range, y:y_range};
-        let mut input = HashMap::new();
-        input.insert((1, 0), 0);
-        input.insert((2, 0), 1);
-
-        let mut output = HashMap::new();
-        output.insert((1, 0), 0);
-        output.insert((2, 0), 1);
-
-        assert_eq!(expand_grid(&input, &bounds), output);
+        assert_eq!(create_grid(&input, &bounds), output);
     }
 
     #[test]
@@ -451,41 +344,6 @@ mod tests {
         assert!(!on_bounds(&(2, 5), &bounds));
         assert!(!on_bounds(&(1, 1), &bounds));
         assert!(!on_bounds(&(11, 8), &bounds));
-    }
-
-    #[test]
-    fn test_add_number() {
-        let mut input: Grid = HashMap::new();
-
-        let mut output = HashMap::new();
-        output.insert((0, 0), 0);
-
-        add_number(&mut input, (0, 0), 0);
-        assert_eq!(input, output);
-    }
-
-    #[test]
-    fn test_add_number_boundary() {
-        let mut input = HashMap::new();
-        input.insert((1, 0), 0);
-
-        let mut output = HashMap::new();
-        output.insert((1, 0), -1);
-
-        add_number(&mut input, (1, 0), 1);
-        assert_eq!(input, output);
-    }
-
-    #[test]
-    fn test_add_number_same_area() {
-        let mut input = HashMap::new();
-        input.insert((1, 0), 0);
-
-        let mut output = HashMap::new();
-        output.insert((1, 0), 0);
-
-        add_number(&mut input, (1, 0), 0);
-        assert_eq!(input, output);
     }
 
     #[test]
